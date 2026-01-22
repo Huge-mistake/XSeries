@@ -1062,8 +1062,13 @@ public enum XMaterial implements XBase<XMaterial, Material> {
     NETHER_STAR,
     /**
      * Just like mentioned in <a href="https://minecraft.wiki/w/Nether_Wart">Nether Wart</a>
-     * Nether wart is also known as nether stalk in the code.
+     * <p>
+     * Nether wart is also known as nether stalk in the internal code.
      * NETHER_STALK is the planted state of nether warts.
+     * <p>
+     * In older versions, such as 1.8.8, this material is known as {@code NETHER_WARTS} in Bukkit's {@link Material}
+     * enum, however it's known as {@code minecraft:nether_wart} in Minecraft's code (evident by the existence of only
+     * that material when using Minecraft's built-in {@code /setblock} command.)
      */
     NETHER_WART("NETHER_WARTS", "NETHER_STALK"),
     NETHER_WART_BLOCK,

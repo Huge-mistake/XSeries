@@ -48,7 +48,7 @@ import java.util.*;
  * This class doesn't and shouldn't support materials that are {@link Material#isLegacy()}.
  *
  * @author Crypto Morin
- * @version 4.0.0
+ * @version 4.1.0
  * @see Block
  * @see BlockState
  * @see MaterialData
@@ -567,18 +567,73 @@ public final class XBlock {
                         + " | " + finalData + " | " + mat + " | " + legacyMaterial));
     }
 
+    public static final class BlockTypeChangeException extends RuntimeException {
+        public enum Reason {
+            /**
+             * The material you used is not supported in the current server version (i.e. {@link XMaterial#isSupported()})
+             */
+            UNSUPPORTED_MATERIAL,
+
+            /**
+             * The material you used cannot be set as a block type (e.g. {@link XMaterial#DIAMOND_SWORD})
+             */
+            NOT_A_BLOCK,
+
+            /**
+             * In older versions where the block state has to be changed, if the
+             * state change is unsuccessful, you'll get this error.
+             * This exception appearing is rare and can indicate a bug with the
+             * material logic XBlock uses for that version.
+             */
+            STATE_CHANGE_FAILURE,
+
+            /**
+             * In older versions when special material handling logic
+             * doesn't exist or can't be continued. You normally shouldn't see this,
+             * because it'd be a bug.
+             */
+            UNEXPECTED_LOGIC
+        }
+
+        private final Reason reason;
+        private final XMaterial material;
+
+        private BlockTypeChangeException(Reason reason, XMaterial material, Material finalMaterial) {
+            super(reason.toString() + " - XMaterial: " + material + ", Finalized Material: " + finalMaterial);
+            this.reason = reason;
+            this.material = material;
+        }
+
+        private BlockTypeChangeException(Reason reason, XMaterial material, String extra) {
+            super(reason.toString() + " - XMaterial: " + material + extra);
+            this.reason = reason;
+            this.material = material;
+        }
+
+        public Reason getReason() {
+            return reason;
+        }
+
+        public XMaterial getMaterial() {
+            return material;
+        }
+    }
+
     /**
      * Note: Special blocks such as beds that require two different blocks to handle will not be
      * set correctly. You'd have to manually set these blocks. (Double/tall plants work fine)
+     *
+     * @throws BlockTypeChangeException due to several reasons (i.e. {@link BlockTypeChangeException.Reason})
      */
-    public static boolean setType(@NotNull Block block, @Nullable XMaterial material, boolean applyPhysics) {
+    public static void setType(@NotNull Block block, @Nullable XMaterial material, boolean applyPhysics) {
         Objects.requireNonNull(block, "Cannot set type of null block");
         if (material == null) material = XMaterial.AIR;
         XMaterial smartConversion = ITEM_TO_BLOCK.get(material);
         if (smartConversion != null) material = smartConversion;
 
         Material parsedMat = material.get();
-        if (parsedMat == null) return false;
+        if (parsedMat == null)
+            throw new BlockTypeChangeException(BlockTypeChangeException.Reason.UNSUPPORTED_MATERIAL, material, "");
 
         String parsedName = parsedMat.name();
 
@@ -586,8 +641,11 @@ public final class XBlock {
         SkullType skullType = getSkullType(material);
         if (!ISFLAT && (parsedName.equals("SKULL_ITEM") || skullType != null)) parsedMat = Material.valueOf("SKULL");
 
+        if (ISFLAT && parsedMat.isBlock()) {
+            throw new BlockTypeChangeException(BlockTypeChangeException.Reason.NOT_A_BLOCK, material, parsedMat);
+        }
         block.setType(parsedMat, applyPhysics);
-        if (ISFLAT) return false;
+        if (ISFLAT) return;
 
         LegacyBlockMaterial blockMaterial = null;
         switch (material) {
@@ -609,10 +667,21 @@ public final class XBlock {
             case WHEAT: // TODO set the age to fully grown?
                 blockMaterial = LegacyBlockMaterial.CROPS;
                 break;
+            case NETHER_WART:
+                // In 1.8:
+                //   NETHER_WARTS is the Bukkit name.
+                //   NETHER_WART is the Minecraft's Vanilla name.
+                blockMaterial = LegacyBlockMaterial.NETHER_WARTS;
+                break;
         }
         if (blockMaterial != null) {
-            block.setType(blockMaterial.material, applyPhysics);
-            return true;
+            Material legacyMat = blockMaterial.material;
+            if (legacyMat == null) {
+                throw new BlockTypeChangeException(BlockTypeChangeException.Reason.UNEXPECTED_LOGIC, material,
+                        ", Legacy material '" + blockMaterial.name() + "' not found");
+            }
+            block.setType(legacyMat, applyPhysics);
+            return;
         }
 
         LegacyMaterialGroup legacyMaterial = LegacyMaterialGroup.getMaterial(parsedName);
@@ -641,7 +710,10 @@ public final class XBlock {
 
             String name = material.name();
             int firstIndicator = name.indexOf('_');
-            if (firstIndicator < 0) return false;
+            if (firstIndicator < 0) {
+                throw new BlockTypeChangeException(BlockTypeChangeException.Reason.UNEXPECTED_LOGIC, material,
+                        ", Wood species material not found: '" + name + '\'');
+            }
             String woodType = name.substring(0, firstIndicator);
 
             TreeSpecies species;
@@ -720,7 +792,10 @@ public final class XBlock {
         }
 
         if (update) state.update(true, applyPhysics);
-        return update;
+        if (!update) {
+            throw new BlockTypeChangeException(BlockTypeChangeException.Reason.STATE_CHANGE_FAILURE, material,
+                    ", Failed to change state of: '" + state + '\'');
+        }
     }
 
     public static SkullType getSkullType(XMaterial material) {
@@ -751,8 +826,8 @@ public final class XBlock {
         }
     }
 
-    public static boolean setType(@NotNull Block block, @Nullable XMaterial material) {
-        return setType(block, material, true);
+    public static void setType(@NotNull Block block, @Nullable XMaterial material) {
+        setType(block, material, true);
     }
 
     public static int getAge(Block block) {
