@@ -1898,6 +1898,9 @@ public enum XMaterial implements XBase<XMaterial, Material> {
     @XInfo(since = "1.21.11") NETHERITE_NAUTILUS_ARMOR,
     @XInfo(since = "1.21.11") COPPER_NAUTILUS_ARMOR,
 
+    @XInfo(since = "26.1") GOLDEN_DANDELION,
+    @XInfo(since = "26.1") POTTED_GOLDEN_DANDELION,
+
     ;
 
 
