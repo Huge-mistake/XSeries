@@ -463,8 +463,7 @@ public final class XReflection {
      */
     @Contract(pure = true)
     public static boolean supports(int majorNumber, int minorNumber, int patchNumber) {
-        if (majorNumber != 1) throw new IllegalArgumentException("Invalid major number: " + majorNumber);
-        return supports(minorNumber, patchNumber);
+        return MAJOR_NUMBER == majorNumber ? supports(minorNumber, patchNumber) : MAJOR_NUMBER > majorNumber;
     }
 
     /**
