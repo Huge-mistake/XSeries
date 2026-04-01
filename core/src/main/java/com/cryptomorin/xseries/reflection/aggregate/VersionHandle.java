@@ -52,7 +52,7 @@ public final class VersionHandle<T> {
      */
     @ApiStatus.Internal
     public VersionHandle(int version, int patch, T handle) {
-        if (XReflection.supports(version, patch)) {
+        if (XReflection.supports(1, version, patch)) {
             this.version = version;
             this.patch = patch;
             this.handle = handle;
@@ -64,7 +64,7 @@ public final class VersionHandle<T> {
      */
     @ApiStatus.Internal
     public VersionHandle(int version, int patch, Callable<T> handle) {
-        if (XReflection.supports(version, patch)) {
+        if (XReflection.supports(1, version, patch)) {
             this.version = version;
             this.patch = patch;
 
@@ -87,7 +87,7 @@ public final class VersionHandle<T> {
     private boolean checkVersion(int version, int patch) {
         if (version == this.version && patch == this.patch)
             throw new IllegalArgumentException("Cannot have duplicate version handles for version: " + version + '.' + patch);
-        return version > this.version && patch >= this.patch && XReflection.supports(version, patch);
+        return version > this.version && patch >= this.patch && XReflection.supports(1, version, patch);
     }
 
     public VersionHandle<T> v(int version, int patch, Callable<T> handle) {

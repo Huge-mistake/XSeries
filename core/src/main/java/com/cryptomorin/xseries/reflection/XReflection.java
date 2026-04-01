@@ -510,7 +510,7 @@ public final class XReflection {
     @NotNull
     @Deprecated
     public static Class<?> getNMSClass(@Nullable String packageName, @NotNull String name) {
-        if (packageName != null && supports(17)) name = packageName + '.' + name;
+        if (packageName != null && supports(1, 17, 0)) name = packageName + '.' + name;
 
         try {
             return Class.forName(NMS_PACKAGE + '.' + name);
