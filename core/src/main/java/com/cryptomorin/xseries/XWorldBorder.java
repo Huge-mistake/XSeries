@@ -358,7 +358,7 @@ public abstract class XWorldBorder {
                 MinecraftClassHandle craftWorld = ofMinecraft().inPackage(MinecraftPackage.CB).named("CraftWorld");
 
                 try {
-                    if (!supports(1, 17, 0)) {
+                    if (!supports(17)) {
                         Class<?> wbType;
                         try {
                             wbType = Class.forName("EnumWorldBorderAction");
@@ -465,7 +465,7 @@ public abstract class XWorldBorder {
                         packets[i++] = component.createPacket(this);
                     }
                 } else {
-                    Object packet = supports(1, 17, 0) ?
+                    Object packet = supports(17) ?
                             PACKET_INIT.invoke(handle) :
                             PACKET_INIT.invoke(handle, INITIALIZE);
 
