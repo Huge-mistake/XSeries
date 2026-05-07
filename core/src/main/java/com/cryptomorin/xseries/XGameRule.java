@@ -50,18 +50,27 @@ public final class XGameRule<T> extends XModule<XGameRule<T>, String> {
 
     private static final boolean SUPPORTS_GameRule;
     private static final MethodHandle GameRule_getByName;
+    private static final MethodHandle GameRule_getName;
+    private static final MethodHandle GameRule_getKey;
+    private static final MethodHandle GameRule_getType;
     private static final MethodHandle World_getGameRuleValue;
     private static final MethodHandle World_setGameRuleValue;
 
     static {
         boolean supportsGameRuleClass = true;
         MethodHandle getByName = null;
+        MethodHandle getName = null;
+        MethodHandle getKey = null;
+        MethodHandle getType = null;
         MethodHandle getGameRuleValue = null;
         MethodHandle setGameRuleValue = null;
 
         MethodHandles.Lookup methodHandles = MethodHandles.lookup();
         try {
             getByName = methodHandles.findStatic(GameRule.class, "getByName", MethodType.methodType(GameRule.class, String.class));
+            getName = methodHandles.findVirtual(GameRule.class, "getName", MethodType.methodType(String.class));
+            getKey = methodHandles.findVirtual(GameRule.class, "getKey", MethodType.methodType(NamespacedKey.class));
+            getType = methodHandles.findVirtual(GameRule.class, "getType", MethodType.methodType(Class.class));
         } catch (NoSuchMethodException | IllegalAccessException e) {
             throw new IllegalStateException(e);
         } catch (NoClassDefFoundError e) {
@@ -76,6 +85,9 @@ public final class XGameRule<T> extends XModule<XGameRule<T>, String> {
         }
         SUPPORTS_GameRule = supportsGameRuleClass;
         GameRule_getByName = getByName;
+        GameRule_getName = getName;
+        GameRule_getKey = getKey;
+        GameRule_getType = getType;
         World_getGameRuleValue = getGameRuleValue;
         World_setGameRuleValue = setGameRuleValue;
     }
@@ -480,44 +492,47 @@ public final class XGameRule<T> extends XModule<XGameRule<T>, String> {
         Object bukkitObject;
         String usableName;
 
-        if (Data.SUPPORTS_Registry_GAME_RULE) {
-            GameRule<?> gameRule = Arrays.stream(names)
-                    .map(Data::getGameRule)
-                    .filter(Objects::nonNull)
-                    .findAny().orElse(null);
-            bukkitObject = gameRule;
+        try {
+            if (Data.SUPPORTS_Registry_GAME_RULE) {
+                GameRule<?> gameRule = Arrays.stream(names)
+                        .map(Data::getGameRule)
+                        .filter(Objects::nonNull)
+                        .findAny().orElse(null);
+                bukkitObject = gameRule;
 
-            if (gameRule != null) {
-                NamespacedKey key = gameRule.getKeyOrNull();
-                if (key == null)
-                    throw new IllegalStateException("Game rule " + gameRule + " of " + names[0] + " has no key");
-                usableName = key.getKey();
+                if (gameRule != null) {
+                    NamespacedKey key = (NamespacedKey) GameRule_getKey.invokeExact(gameRule);
+                    usableName = key.getKey();
+
+                    Class<?> gameRuleType = (Class<?>) GameRule_getType.invokeExact(gameRule);
+                    if (type != gameRuleType) {
+                        new IllegalStateException("Game rule type mismatch: "
+                                + names[0] + " (" + type + ") != "
+                                + gameRule + " (" + gameRuleType + ')').printStackTrace();
+                    }
+                } else {
+                    usableName = null;
+                }
+            } else if (GameRule_getByName != null) {
+                GameRule<?> gameRule = Arrays.stream(names)
+                        .map(x -> {
+                            try {
+                                return (GameRule<?>) GameRule_getByName.invokeExact(x);
+                            } catch (Throwable e) {
+                                throw new RuntimeException(e);
+                            }
+                        })
+                        .filter(Objects::nonNull)
+                        .findAny().orElse(null);
+                bukkitObject = gameRule;
+                usableName = (String) GameRule_getName.invokeExact(gameRule);
             } else {
-                usableName = null;
+                World world = Bukkit.getWorlds().get(0);
+                usableName = Arrays.stream(names).filter(world::isGameRule).findAny().orElse(null);
+                bukkitObject = null;
             }
-
-            if (gameRule != null && type != gameRule.getType()) {
-                new IllegalStateException("Game rule type mismatch: "
-                        + names[0] + " (" + type + ") != "
-                        + gameRule + " (" + gameRule.getType() + ')').printStackTrace();
-            }
-        } else if (GameRule_getByName != null) {
-            GameRule<?> gameRule = Arrays.stream(names)
-                    .map(x -> {
-                        try {
-                            return (GameRule<?>) GameRule_getByName.invokeExact(x);
-                        } catch (Throwable e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .filter(Objects::nonNull)
-                    .findAny().orElse(null);
-            bukkitObject = gameRule;
-            usableName = gameRule.getName();
-        } else {
-            World world = Bukkit.getWorlds().get(0);
-            usableName = Arrays.stream(names).filter(world::isGameRule).findAny().orElse(null);
-            bukkitObject = null;
+        } catch (Throwable t) {
+            throw new IllegalStateException("Unexpected error while trying to get game rule: " + t.getMessage(), t);
         }
 
         return new XGameRule<>(type, usableName, bukkitObject, names);
