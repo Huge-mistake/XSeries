@@ -30,6 +30,7 @@ import com.mojang.authlib.GameProfile;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -62,6 +63,46 @@ public abstract class ProfileContainer<T> implements Profileable {
         return this.getClass().getSimpleName() + '[' + getObject() + ']';
     }
 
+    @ApiStatus.Internal
+    public static final class PlayerContainer extends ProfileContainer<Player> implements DelegateProfileable {
+        private final Player player;
+
+        public PlayerContainer(Player player) {
+            this.player = player;
+        }
+
+
+        @Override
+        public void setProfile(@Nullable MojangGameProfile profile) {
+            // TODO Player skin change
+            // https://github.com/PaperMC/Paper/blob/8dea6f1761c97da76fa2e42c6f74fb1242c23feb/paper-server/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java#L1978-L2008
+            // https://github.com/PaperMC/Paper/blob/8dea6f1761c97da76fa2e42c6f74fb1242c23feb/paper-server/patches/sources/net/minecraft/server/network/ServerLoginPacketListenerImpl.java.patch#L250-L258
+            // https://github.com/PaperMC/Paper/blob/8dea6f1761c97da76fa2e42c6f74fb1242c23feb/paper-server/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java#L2026-L2047
+
+            // net.minecraft.world.entity.player.Player
+            //    private final GameProfile gameProfile;
+            //
+            //    @Override
+            //    public ResolvableProfile getProfile() {
+            //        return ResolvableProfile.createResolved(this.gameProfile);
+            //    }
+            // Note: How do we set the "gameProfile" property like Paper does?
+            // That field seems to be final.
+            player.getPlayerProfile();
+        }
+
+        @Override
+        public Player getObject() {
+            return player;
+        }
+
+        @Override
+        public Profileable getDelegateProfile() {
+            return Profileable.of(player);
+        }
+    }
+
+    @ApiStatus.Internal
     public static final class ItemStackProfileContainer extends ProfileContainer<ItemStack> implements DelegateProfileable {
         private final ItemStack itemStack;
 
@@ -91,6 +132,7 @@ public abstract class ProfileContainer<T> implements Profileable {
         }
     }
 
+    @ApiStatus.Internal
     public static final class ItemMetaProfileContainer extends ProfileContainer<ItemMeta> {
         private final ItemMeta meta;
 
@@ -120,6 +162,7 @@ public abstract class ProfileContainer<T> implements Profileable {
         }
     }
 
+    @ApiStatus.Internal
     public static final class BlockProfileContainer extends ProfileContainer<Block> implements DelegateProfileable {
         private final Block block;
 
@@ -150,6 +193,7 @@ public abstract class ProfileContainer<T> implements Profileable {
         }
     }
 
+    @ApiStatus.Internal
     public static final class BlockStateProfileContainer extends ProfileContainer<Skull> {
         private final Skull state;
 

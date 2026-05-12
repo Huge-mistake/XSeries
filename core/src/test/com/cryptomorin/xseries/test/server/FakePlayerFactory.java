@@ -30,7 +30,7 @@ import com.cryptomorin.xseries.reflection.jvm.ConstructorMemberHandle;
 import com.cryptomorin.xseries.reflection.jvm.MethodMemberHandle;
 import com.cryptomorin.xseries.reflection.minecraft.MinecraftClassHandle;
 import com.cryptomorin.xseries.reflection.minecraft.MinecraftMapping;
-import com.cryptomorin.xseries.test.Constants;
+import com.cryptomorin.xseries.test.TestConstants;
 import com.mojang.authlib.GameProfile;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
@@ -112,7 +112,7 @@ public final class FakePlayerFactory {
         Server server = Bukkit.getServer();
         Object nmsServer = CraftServer_getServer.reflect().invoke(server);
 
-        World world = Constants.getMainWorld();
+        World world = TestConstants.getMainWorld();
         Object nmsWorld = CraftWorld_getHandle.reflect().invoke(world);
 
         MojangGameProfile gameProfile = PlayerProfiles.createGameProfile(

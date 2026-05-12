@@ -30,8 +30,8 @@ import org.bukkit.World;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public final class Constants {
-    private Constants() {}
+public final class TestConstants {
+    private TestConstants() {}
 
     public static final Object LOCK = new Object();
 

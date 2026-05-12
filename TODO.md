@@ -1,6 +1,8 @@
-This file simply highlighs things that need to be done in future releases or other issues and bugs that a proper
+This file simply highlights things that need to be done in future releases or other issues and bugs that a proper
 solution is yet to be found. It's also a simple list of planned decisions for the future of the project that other
 developers can see and perhaps give suggestions about. Anyone is welcome to complete any of the listed issues.
+
+* **[XSkull]** Complete `XSkull.of(player)`
 
 * **[XMaterial]** We have to convert this into a XModule/XRegistry class soon. Wait and see what Spigot/Pape does first.
 
@@ -33,7 +35,7 @@ developers can see and perhaps give suggestions about. Anyone is welcome to comp
   string approach and do `boolean isSupported(String signature)` to be used
   like `isSupported("private method(int a, String b, ...)")` that could work. A more strict approach using the
   already existing interface would've been nicer. For example, in JavaScript we could reference the method
-  itself and add properties to it. I guess an ideal approach would be how you link methods in javadocs.
+  itself and add properties to it. I guess an ideal approach would be how you link methods in Javadocs.
 
 * **[ReflectiveProxyObject]** Add a simple enum class scanner that uses `@Proxify` and `@ReflectName` annotations to
   parse an enum class and map the correct values to field. How this value gets saved should be handled by
@@ -79,7 +81,7 @@ developers can see and perhaps give suggestions about. Anyone is welcome to comp
 * **[General]** Adding a nice logo/banner to the main GitHub page would be nice, it feels quite empty right now. I will
   have to spend a lot of time to design one.
 
-* **[Documentation]** While the javadocs are pretty comprehensive for most classes, they're mostly flooded with small
+* **[Documentation]** While the Javadocs are pretty comprehensive for most classes, they're mostly flooded with small
   and technical details that most developers don't have to be concerned about. We should make a guide on the wiki with
   screenshots and a general overview of all the features which makes it much easier for developers to get started.
 
@@ -87,3 +89,9 @@ developers can see and perhaps give suggestions about. Anyone is welcome to comp
   building the project. The log file simply says the dependencies couldn't be resolved? Seems to be related to Javadoc
   goal. Also, `[ERROR] Error fetching link: XSeries/<project>/target/apidocs. Ignored it.` might be related to  
   the previous error.
+
+* **[Maven]** A way to suppress
+  `[WARNING] Overwriting artifact's file from .\core\target\XSeries-x.x.x.jar to .\core\target\classes`
+  since we are intentionally overriding the non-shaded JAR because it's not useful.
+
+* **[Maven]** JUnit v6.0.3 seems to be loaded classes eagerly which causes issues with XReflection cinit.

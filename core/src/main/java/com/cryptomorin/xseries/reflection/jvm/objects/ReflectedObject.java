@@ -104,7 +104,7 @@ public interface ReflectedObject extends AnnotatedElement {
      * This is obvious for {@link Constructor}, {@link Field} and {@link Method} objects,
      * but for {@link Class#getDeclaringClass()} it'd be enclosing class or {@code null} if none.
      * <p>
-     * The subtilty with {@link Class#getDeclaringClass()} is that anonymous inner classes are not counted as member
+     * The subtlety with {@link Class#getDeclaringClass()} is that anonymous inner classes are not counted as member
      * of a class, whereas named inner classes are. Therefore, this method returns null for an anonymous class.
      * The alternative method {@link Class#getEnclosingClass()} works for both anonymous and named classes
      */
@@ -172,8 +172,9 @@ public interface ReflectedObject extends AnnotatedElement {
      * {@code FINAL}.
      * For {@link Class} objects representing void, primitive types, and
      * arrays, access flags are absent other than as specified above.
-     * @jvms 4.1 The ClassFile Structure
-     * @jvms 4.7.6 The InnerClasses Attribute
+     * <p>
+     * JVMs 4.1 The ClassFile Structure
+     * JVMs 4.7.6 The InnerClasses Attribute
      * @see XAccessFlag
      * @see java.lang.reflect.Modifier
      * @see #getModifiers()

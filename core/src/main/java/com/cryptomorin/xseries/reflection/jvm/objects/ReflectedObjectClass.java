@@ -22,23 +22,25 @@
 
 package com.cryptomorin.xseries.reflection.jvm.objects;
 
+import org.jspecify.annotations.NonNull;
+
 final class ReflectedObjectClass extends AbstractReflectedObject {
     private final Class<?> delegate;
 
     ReflectedObjectClass(Class<?> delegate) {this.delegate = delegate;}
 
     @Override
-    public Type type() {
+    public @NonNull Type type() {
         return Type.CLASS;
     }
 
     @Override
-    public Class<?> unreflect() {
+    public @NonNull Class<?> unreflect() {
         return delegate;
     }
 
     @Override
-    public String name() {
+    public @NonNull String name() {
         return delegate.getSimpleName();
     }
 

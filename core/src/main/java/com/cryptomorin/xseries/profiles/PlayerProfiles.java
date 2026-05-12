@@ -146,11 +146,11 @@ public final class PlayerProfiles {
 
     /**
      * Constructs a {@link GameProfile} using the provided texture hash and base64 string.
+     * This method creates a {@link GameProfile} with a UUID derived from the provided hash.
      *
      * @param hash   The texture hash used to construct the profile's textures.
      * @param base64 The base64 string representing the profile's textures.
      * @return The constructed {@link GameProfile}.
-     * @implNote This method creates a {@link GameProfile} with a UUID derived from the provided hash
      * to ensure consistency after restarts.
      */
     @NotNull

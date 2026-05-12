@@ -25,7 +25,7 @@ In IntelliJ, you can press `Ctrl` twice for the command window to popup.
 To compile the library into `target` folder, you can use this Maven command:
 
 ```maven
-mvn clean package -pl core -am -DskipTests=true -Dmaven.test.skip=true
+mvn clean package -pl core -am -DskipTests=true -Dmaven.test.skip=true -nsu
 ```
 
 > [!NOTE]
@@ -51,8 +51,13 @@ mvn clean exec:exec@compile exec:exec@test -DtestVer=21 --projects core -am
 ```
 
 > [!NOTE]
-> The server files will be generated inside `target/tests` folder.\
-> The common server settings used between tests are in `src/test/resources`
+> * The server files will be generated inside `target/tests` folder.
+> * The common server settings used between tests are in `src/test/resources`
+> * Maven should not download anything when compiling tests, the server JAR is ran from the dependencies.
+> * You can control what tests are performed from the `TestConstants` test class.
+> * For all inconsistent registry values (e.g. Material, Sound, etc. classes) for the version being tested, 
+>   the plugin will generate a list of differences in the server's root folder named after
+>   the target classes (XMaterial, XSound, etc.)
 
 ### Rules
 

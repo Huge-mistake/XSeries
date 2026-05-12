@@ -22,12 +22,14 @@
 
 package com.cryptomorin.xseries.reflection.jvm.objects;
 
+import org.jspecify.annotations.NonNull;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 
 abstract class AbstractReflectedObject implements ReflectedObject {
     @Override
-    public abstract AnnotatedElement unreflect();
+    public abstract @NonNull AnnotatedElement unreflect();
 
     @Override
     public final <A extends Annotation> A getAnnotation(Class<A> annotationClass) {

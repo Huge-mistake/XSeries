@@ -28,7 +28,7 @@ import com.cryptomorin.xseries.base.XRegistry;
 import com.cryptomorin.xseries.particles.XParticle;
 import com.cryptomorin.xseries.reflection.XReflection;
 import com.cryptomorin.xseries.reflection.minecraft.MinecraftPackage;
-import com.cryptomorin.xseries.test.Constants;
+import com.cryptomorin.xseries.test.TestConstants;
 import com.cryptomorin.xseries.test.util.XLogger;
 import org.bukkit.GameRule;
 import org.bukkit.Keyed;
@@ -65,7 +65,7 @@ public final class DifferenceHelper {
      * Writes the material and sound differences to files in the server's root folder for updating purposes.
      */
     public static void versionDifference() {
-        Path serverFolder = Constants.getTestPath();
+        Path serverFolder = TestConstants.getTestPath();
         XLogger.log("Server container: " + serverFolder.toAbsolutePath());
 
         Path materials = serverFolder.resolve("XMaterial.txt"),
@@ -82,7 +82,7 @@ public final class DifferenceHelper {
 
         // TODO - Right now the difference writer doesn't properly consider the version that is being tested
         new DiffWriter(materials).ignore(mat -> mat.startsWith("LEGACY_")).writeDifference(org.bukkit.Material.class, XMaterial.class);
-        new DiffWriter(gameRules).writeDifference(getEnumLikeFields(GameRule.class), getEnumLikeFields(XGameRule.class));
+        new DiffWriter(gameRules).writeDifference(getEnumLikeFields(GameRule.class), getEnumLikeFields(XGameRule.class), XGameRule.class);
         new DiffWriter(sounds).writeDifference(Sound.class, XSound.REGISTRY);
         new DiffWriter(biomes).writeDifference(Biome.class, XBiome.REGISTRY);
         new DiffWriter(entityType).writeDifference(getEnumLikeFields(EntityType.class), XEntityType.class);
@@ -299,15 +299,11 @@ public final class DifferenceHelper {
             writer.append(' ');
         }
 
-        public <E extends Enum<E>> void writeDifference(List<String> system, List<String> xForm) {
-            writeDifference(system, xForm, null);
-        }
-
         public <E extends Enum<E>> void writeDifference(List<String> system, Class<E> xForm) {
             writeDifference(system, Arrays.stream(xForm.getEnumConstants()).map(Enum::name).collect(Collectors.toList()), xForm);
         }
 
-        public <E extends Enum<E>> void writeDifference(List<String> system, List<String> xForm, @Nullable Class<E> xFormClass) {
+        public void writeDifference(List<String> system, List<String> xForm, @Nullable Class<?> xFormClass) {
             boolean hasEntries = false;
 
             for (String systemConst : system) {

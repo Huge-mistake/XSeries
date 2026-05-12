@@ -22,17 +22,19 @@
 
 package com.cryptomorin.xseries.reflection.jvm.objects;
 
+import org.jspecify.annotations.NonNull;
+
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 
 abstract class AbstractMemberReflectedObject extends AbstractReflectedObject {
     @Override
-    public abstract AnnotatedElement unreflect();
+    public abstract @NonNull AnnotatedElement unreflect();
 
     protected abstract Member member();
 
     @Override
-    public String name() {
+    public @NonNull String name() {
         return member().getName();
     }
 

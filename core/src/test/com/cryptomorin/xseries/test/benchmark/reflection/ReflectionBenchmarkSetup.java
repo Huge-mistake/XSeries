@@ -24,7 +24,7 @@ package com.cryptomorin.xseries.test.benchmark.reflection;
 
 import com.cryptomorin.xseries.reflection.asm.XReflectASM;
 import com.cryptomorin.xseries.reflection.proxy.ReflectiveProxy;
-import com.cryptomorin.xseries.test.Constants;
+import com.cryptomorin.xseries.test.TestConstants;
 import org.openjdk.jmh.annotations.*;
 
 import java.lang.invoke.CallSite;
@@ -75,7 +75,7 @@ import java.util.concurrent.TimeUnit;
 public class ReflectionBenchmarkSetup {
     @Setup(Level.Trial)
     public void setup() {
-        Constants.disableXReflectionMinecraft();
+        TestConstants.disableXReflectionMinecraft();
     }
 
     @Benchmark
@@ -120,7 +120,7 @@ public class ReflectionBenchmarkSetup {
         @SuppressWarnings("unchecked")
         @Setup(Level.Trial)
         public void setupBenchmark() {
-            Constants.disableXReflectionMinecraft();
+            TestConstants.disableXReflectionMinecraft();
             try {
                 Field field = ReflectiveProxy.class.getDeclaredField("PROXIFIED_CLASS_LOADER0");
                 field.setAccessible(true);
@@ -154,7 +154,7 @@ public class ReflectionBenchmarkSetup {
         @SuppressWarnings("unchecked")
         @Setup(Level.Trial)
         public void setupBenchmark() throws Exception {
-            Constants.disableXReflectionMinecraft();
+            TestConstants.disableXReflectionMinecraft();
 
             Field field = XReflectASM.class.getDeclaredField("PROCESSED");
             field.setAccessible(true);

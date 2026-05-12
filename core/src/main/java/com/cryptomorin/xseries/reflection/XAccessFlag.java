@@ -85,8 +85,8 @@ public enum XAccessFlag {
 
     /**
      * The access flag {@code ACC_SUPER} with a mask value of {@code 0x0020}.
-     *
-     * @apiNote In Java SE 8 and above, the JVM treats the {@code ACC_SUPER}
+     * <p>
+     * In Java SE 8 and above, the JVM treats the {@code ACC_SUPER}
      * flag as set in every class file (JVM Section 4.1).
      */
     SUPER(0x0000_0020, false, JVMLocation.CLASS),
@@ -180,8 +180,8 @@ public enum XAccessFlag {
      * The access flag {@code ACC_STRICT}, corresponding to the source
      * modifier {@link Modifier#STRICT strictfp}, with a mask value of
      * <code>{@code "0x%04x" Modifier#STRICT}</code>.
-     *
-     * @apiNote The {@code ACC_STRICT} access flag is defined for class file
+     * <p>
+     * The {@code ACC_STRICT} access flag is defined for class file
      * major versions 46 through 60, inclusive (JVM Section 4.6),
      * corresponding to Java SE 1.2 through 16.
      * @since Java 1.2
@@ -287,7 +287,7 @@ public enum XAccessFlag {
      * Whether the flag has a directly corresponding
      * modifier in the Java programming language.
      * <p>
-     * In most cases this'd mean that you can find the
+     * In most cases this would mean that you can find the
      * flag name inside {@link Modifier} as well.
      * An exception to this rule would be {@link Modifier#INTERFACE}
      */
@@ -458,6 +458,6 @@ public enum XAccessFlag {
          *
          * @since Java 9
          */
-        MODULE_OPENS;
+        MODULE_OPENS
     }
 }

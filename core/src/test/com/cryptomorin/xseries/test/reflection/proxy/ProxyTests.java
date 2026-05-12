@@ -26,7 +26,7 @@ import com.cryptomorin.xseries.reflection.XReflection;
 import com.cryptomorin.xseries.reflection.proxy.ReflectiveProxy;
 import com.cryptomorin.xseries.reflection.proxy.ReflectiveProxyObject;
 import com.cryptomorin.xseries.reflection.proxy.generator.XProxifier;
-import com.cryptomorin.xseries.test.Constants;
+import com.cryptomorin.xseries.test.TestConstants;
 import com.cryptomorin.xseries.test.reflection.proxy.minecraft.BlockPos;
 import com.cryptomorin.xseries.test.reflection.proxy.minecraft.CraftWorld;
 import com.cryptomorin.xseries.test.util.XLogger;
@@ -44,7 +44,7 @@ public final class ProxyTests {
         normalProxyTest(ReflectiveProxy.proxify(ProxyTestProxified.class).proxy());
         if (XReflection.supports(20)) minecraftProxyTest((x) -> ReflectiveProxy.proxify(x).proxy());
 
-        new XProxifier(ProxyTestClass.class).writeTo(Constants.getTestPath());
+        new XProxifier(ProxyTestClass.class).writeTo(TestConstants.getTestPath());
         // new XProxifier(
         //         XReflection.ofMinecraft().inPackage(MinecraftPackage.NMS, "server.level")
         //                 .map(MinecraftMapping.MOJANG, "ServerPlayer")
@@ -109,7 +109,7 @@ public final class ProxyTests {
     }
 
     public static void minecraftProxyTest(Function<Class<? extends ReflectiveProxyObject>, ReflectiveProxyObject> proxifier) {
-        World bukkitWorld = Constants.getMainWorld();
+        World bukkitWorld = TestConstants.getMainWorld();
         // WorldServer nmsWorld = ((org.bukkit.craftbukkit.v1_21_R3.CraftWorld) bukkitWorld).getHandle();
         // boolean changed = nmsWorld.a(new BlockPosition(45, 34, 23), true);
 

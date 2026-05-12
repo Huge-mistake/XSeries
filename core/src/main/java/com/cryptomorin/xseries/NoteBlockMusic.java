@@ -25,6 +25,7 @@ import com.google.common.base.Strings;
 import org.bukkit.Instrument;
 import org.bukkit.Location;
 import org.bukkit.Note;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -126,10 +127,10 @@ public final class NoteBlockMusic {
      * Gets a note tone from a character. Can't be optimized further using an array
      * since switch statement here can be optimized by JIT even more.
      * <p>
-     * The character paseed to this method is assumed to be uppercase,
+     * The character passed to this method is assumed to be uppercase,
      * otherwise it needs to be {@code ch & 0x5f} manually.
      * <p>
-     * https://minecraft.wiki/w/Note_Block#Notes
+     * <a href="https://minecraft.wiki/w/Note_Block#Notes">Note block notes</a>
      *
      * @param ch the character of the note tone.
      * @return the note tone or null if not found.
@@ -189,7 +190,7 @@ public final class NoteBlockMusic {
                 parseInstructions(line).play(player, location, true);
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            throw new IllegalStateException("Failed to play " + path + " note to " + player, ex);
         }
     }
 
@@ -213,13 +214,13 @@ public final class NoteBlockMusic {
      * Translated:
      * Play BASS_DRUM with tone G 3 times every 20 ticks.<br>
      * Play BASS_GUITAR with tone E 5 times every 10 ticks.<br>
-     * Play those ^ again two times with 1 second delay between repeats.<br>
+     * Play those ^ again two times with a 1-second delay between repeats.<br>
      * Wait 1000ms.<br>
      * Play BANJO with tone A once.
      * </pre>
      * <p>
      * <b>Note Tones</b><p>
-     * Available Note Tones: G, A, B, C, D, E, F (Idk why G is the first one) {@link org.bukkit.Note.Tone}<br>
+     * Available Note Tones: G, A, B, C, D, E, F (I don't know why G is the first one) {@link org.bukkit.Note.Tone}<br>
      * You can also use sharp or flat tones by using '#' for sharp and '_' for flat e.g. B_ C#<br>
      * Octave numbers 1 and 2 can be used.
      * C1, C#1, B_1, D_2
@@ -264,7 +265,7 @@ public final class NoteBlockMusic {
      * Parses a Minecraft {@link Note} with its {@link org.bukkit.Note.Tone}
      * With the format: {@literal <tone>[pitch][octave]}
      * <p>
-     * Available Note Tones: G, A, B, C, D, E, F (Idk why G is the first one) {@link org.bukkit.Note.Tone}<br>
+     * Available Note Tones: G, A, B, C, D, E, F (I don't know why G is the first one) {@link org.bukkit.Note.Tone}<br>
      * You can also use sharp or flat tones by using '#' for sharp and '_' for flat e.g. B_ C#<br>
      * Octave numbers 1 and 2 can be used.
      * C1, C#1, B_1, D_2
@@ -410,7 +411,7 @@ public final class NoteBlockMusic {
         final int len;
         final StringBuilder
                 instrumentBuilder = new StringBuilder(10),
-                pitchBuiler = new StringBuilder(3), volumeBuilder = new StringBuilder(3),
+                pitchBuilder = new StringBuilder(3), volumeBuilder = new StringBuilder(3),
                 restatementBuilder = new StringBuilder(10), restatementDelayBuilder = new StringBuilder(10),
                 fermataBuilder = new StringBuilder(10);
         int i;
@@ -462,7 +463,7 @@ public final class NoteBlockMusic {
                     case ',':
                         switch (phase) {
                             case INSTRUMENT:
-                                currentBuilder = pitchBuiler;
+                                currentBuilder = pitchBuilder;
                                 break;
                             case NOTE:
                             case END_SEQ:
@@ -512,10 +513,10 @@ public final class NoteBlockMusic {
                 String instrumentStr = instrumentBuilder.toString();
                 XSound sound;
                 Instrument instrument = INSTRUMENTS.get(instrumentStr);
-                if (instrument == null) sound = XSound.matchXSound(instrumentStr).orElse(null);
+                if (instrument == null) sound = XSound.of(instrumentStr).orElse(null);
                 else sound = getSoundFromInstrument(instrument);
 
-                String pitchStr = pitchBuiler.toString();
+                String pitchStr = pitchBuilder.toString();
                 float pitch;
                 Note note = parseNote(pitchStr);
                 if (note == null) pitch = Float.parseFloat(pitchStr);
@@ -532,7 +533,7 @@ public final class NoteBlockMusic {
 
         private void prepareHandlers() {
             instrumentBuilder.setLength(0);
-            pitchBuiler.setLength(0);
+            pitchBuilder.setLength(0);
             volumeBuilder.setLength(0);
             restatementBuilder.setLength(0);
             restatementDelayBuilder.setLength(0);
@@ -575,7 +576,7 @@ public final class NoteBlockMusic {
     }
 
     /**
-     * An instruction that produces a sonud which consists of a {@link Instrument} and a {@link Note} with {@link org.bukkit.Note.Tone},
+     * An instruction that produces a sound which consists of a {@link Instrument} and a {@link Note} with {@link org.bukkit.Note.Tone},
      * but without <a href="https://en.wikipedia.org/wiki/Duration_(music)">duration</a> or
      *
      * @since 3.0.0
@@ -619,7 +620,8 @@ public final class NoteBlockMusic {
                 Location finalLocation = location.get();
                 if (bukkitSound != null) {
                     if (playAtLocation) {
-                        finalLocation.getWorld().playSound(finalLocation, bukkitSound, volume, pitch);
+                        World world = Objects.requireNonNull(finalLocation.getWorld(), "World of provided location is null: " + location);
+                        world.playSound(finalLocation, bukkitSound, volume, pitch);
                     } else {
                         player.playSound(finalLocation, bukkitSound, volume, pitch);
                     }
@@ -674,7 +676,7 @@ public final class NoteBlockMusic {
      * An instruction is any musical <a href="https://en.wikipedia.org/wiki/Movement_(music)">movement</a> or
      * <a href="https://en.wikipedia.org/wiki/Section_(music)">section</a> that can be a <a href="">restatement</a>
      * and might have a <a href="https://en.wikipedia.org/wiki/Fermata">fermata</a>.
-     * https://en.wikipedia.org/wiki/Repetition_(music)
+     * <a href="https://en.wikipedia.org/wiki/Repetition_(music)">Wikipedia - Repetition in music</a>
      *
      * @since 3.0.0
      */

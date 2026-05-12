@@ -22,7 +22,7 @@
 
 package com.cryptomorin.xseries.test.benchmark;
 
-import com.cryptomorin.xseries.test.Constants;
+import com.cryptomorin.xseries.test.TestConstants;
 import com.cryptomorin.xseries.test.util.XLogger;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.runner.Runner;
@@ -61,8 +61,8 @@ public class BenchmarkMain extends Thread implements Thread.UncaughtExceptionHan
             throw new RuntimeException(e);
         } finally {
             XLogger.log("JMH Benchmarking is done, unlocking...");
-            synchronized (Constants.LOCK) {
-                Constants.LOCK.notifyAll();
+            synchronized (TestConstants.LOCK) {
+                TestConstants.LOCK.notifyAll();
             }
             XLogger.log("JMH All done, exiting JMH mode...");
         }

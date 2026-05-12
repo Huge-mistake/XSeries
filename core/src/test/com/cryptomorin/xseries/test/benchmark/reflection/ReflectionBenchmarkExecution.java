@@ -23,7 +23,7 @@
 package com.cryptomorin.xseries.test.benchmark.reflection;
 
 import com.cryptomorin.xseries.reflection.XReflection;
-import com.cryptomorin.xseries.test.Constants;
+import com.cryptomorin.xseries.test.TestConstants;
 import org.openjdk.jmh.annotations.*;
 
 import java.lang.invoke.CallSite;
@@ -94,7 +94,7 @@ public class ReflectionBenchmarkExecution {
     private final boolean thirdArg = true;
 
     static {
-        Constants.disableXReflectionMinecraft();
+        TestConstants.disableXReflectionMinecraft();
 
         ReflectionBenchmarkTargetMethod instace;
         Method rawJava;
@@ -139,7 +139,7 @@ public class ReflectionBenchmarkExecution {
 
     @Setup(Level.Trial)
     public void setup() {
-        Constants.disableXReflectionMinecraft();
+        TestConstants.disableXReflectionMinecraft();
     }
 
     @Benchmark

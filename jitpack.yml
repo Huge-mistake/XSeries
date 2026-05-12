@@ -1,6 +1,6 @@
 # Use the latest LTS, as long as it can compile Java 8
 jdk:
-  - openjdk21
+  - openjdk25
 
 # Uses the latest Maven version by default (Sometimes a few versions behind)
 before_install:

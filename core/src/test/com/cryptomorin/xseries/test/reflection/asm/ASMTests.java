@@ -24,7 +24,7 @@ package com.cryptomorin.xseries.test.reflection.asm;
 
 import com.cryptomorin.xseries.reflection.XReflection;
 import com.cryptomorin.xseries.reflection.asm.XReflectASM;
-import com.cryptomorin.xseries.test.Constants;
+import com.cryptomorin.xseries.test.TestConstants;
 import com.cryptomorin.xseries.test.reflection.proxy.ProxyTestProxified;
 import com.cryptomorin.xseries.test.reflection.proxy.ProxyTests;
 import com.cryptomorin.xseries.test.util.XLogger;
@@ -40,7 +40,7 @@ public final class ASMTests {
         }
 
         XReflectASM<ProxyTestProxified> asm = XReflectASM.proxify(ProxyTestProxified.class);
-        asm.writeToFile(Constants.getTestPath());
+        asm.writeToFile(TestConstants.getTestPath());
         ProxyTestProxified factoryInstance = asm.create();
         ProxyTests.normalProxyTest(factoryInstance);
 

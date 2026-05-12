@@ -83,12 +83,13 @@ import java.util.function.Predicate;
 import static com.cryptomorin.xseries.test.util.XLogger.log;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("CallToPrintStackTrace")
 public final class XSeriesTests {
     // @Test
     public void enumToRegistry() throws URISyntaxException {
         URL resource = XSeriesTests.class.getResource("XEnchantment.java");
         Path path = Paths.get(resource.toURI());
-        ClassConverter.enumToRegistry(path, Constants.getTestPath());
+        ClassConverter.enumToRegistry(path, TestConstants.getTestPath());
     }
 
     public static void test() {
@@ -113,7 +114,7 @@ public final class XSeriesTests {
         wrapperTest();
         testReflection();
 
-        if (Constants.TEST_MOJANG_API) testSkulls();
+        if (TestConstants.TEST_MOJANG_API) testSkulls();
         else {
             try {
                 Class.forName("com.cryptomorin.xseries.profiles.mojang.MojangAPI");
@@ -125,9 +126,9 @@ public final class XSeriesTests {
         log("\n\n\nTest end...");
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "unused"})
     private static <T extends Entity> T findEntity(Predicate<Entity> entity) {
-        return Constants.getMainWorld().getEntities().stream()
+        return TestConstants.getMainWorld().getEntities().stream()
                 .filter(entity)
                 .map(x -> (T) x)
                 .findFirst()
@@ -149,7 +150,7 @@ public final class XSeriesTests {
 
     private static void wrapperTest() {
         log("Testing wrappers...");
-        Chunk chunk = Constants.getMainWorld().getLoadedChunks()[0];
+        Chunk chunk = TestConstants.getMainWorld().getLoadedChunks()[0];
         Painting painting = chunk.getWorld().spawn(getCenterOfChunk(chunk), Painting.class);
         log("Art is: " + XArt.of(painting.getArt()));
     }
@@ -393,9 +394,6 @@ public final class XSeriesTests {
             assertMaterial(XMaterial.BLACK_DYE, inkSack);
         }
 
-        // assertFalse(XMaterial.MAGENTA_TERRACOTTA.isOneOf(Arrays.asList("GREEN_TERRACOTTA", "BLACK_BED", "DIRT")));
-        // assertTrue(XMaterial.BLACK_CONCRETE.isOneOf(Arrays.asList("RED_CONCRETE", "CONCRETE:15", "CONCRETE:14")));
-        // commonRegistryTest(XMaterial.REGISTRY, Arrays.asList(Material.values()));
         for (Material material : Material.values())
             if (!material.name().startsWith("LEGACY")) XMaterial.matchXMaterial(material);
     }
@@ -420,6 +418,11 @@ public final class XSeriesTests {
 
     private static final class ItemSerialDual {
         private ItemStack serialized, deserialized;
+
+        @Override
+        public String toString() {
+            return "ItemSerialDual(serialized=" + serialized + ", deserialized=" + deserialized + ")";
+        }
     }
 
     private static void testXItemStack() {
@@ -465,6 +468,8 @@ public final class XSeriesTests {
 
         for (String section : yaml.getKeys(false)) {
             ConfigurationSection itemSection = yaml.getConfigurationSection(section);
+            if (!TestConstants.TEST_MOJANG_API && itemSection.isSet("skull")) continue;
+
             ItemStack item = XItemStack.deserializer()
                     .fromConfig(itemSection)
                     .deserialize();
@@ -495,7 +500,7 @@ public final class XSeriesTests {
         }
     }
 
-    @SuppressWarnings({"CodeBlock2Expr", "UnstableApiUsage"})
+    @SuppressWarnings({"CodeBlock2Expr", "UnstableApiUsage", "SpellCheckingInspection"})
     private static YamlConfiguration serializeItemStack(Map<String, ItemSerialDual> map) throws IOException {
         File file = new File(Bukkit.getWorldContainer(), "serialized.yml");
         if (!file.exists()) {
@@ -535,7 +540,7 @@ public final class XSeriesTests {
                 leather.setTrim(new ArmorTrim(TrimMaterial.DIAMOND, TrimPattern.SNOUT));
             }));
         }
-        if (Constants.TEST_MOJANG_API) {
+        if (TestConstants.TEST_MOJANG_API) {
             items.put("head-notch", createItem(XMaterial.PLAYER_HEAD, meta -> {
                 XSkull.of(meta).profile(
                         Profileable.username("Notch")
@@ -575,6 +580,7 @@ public final class XSeriesTests {
         return yaml;
     }
 
+    @SuppressWarnings({"HttpUrlsUsage", "SpellCheckingInspection"})
     private static void testSkulls() {
         log("Testing skulls request queue...");
         XSkullRequestQueueTest.createTests();
@@ -633,7 +639,7 @@ public final class XSeriesTests {
 
         // Currently broken. Seems like Mojang disabled this API? Read MojangAPI.usernamesToUUIDs for more info.
         // [5/31/2025] It's working again!
-        if (Constants.TEST_MOJANG_API_BULK) {
+        if (TestConstants.TEST_MOJANG_API_BULK) {
             log("Testing bulk username to UUID conversion...");
             Map<UUID, String> mapped = MojangAPI.usernamesToUUIDs(Arrays.asList("yourmom1212",
                     "ybe", "Scavage", "Tinchosz", "daerb",
@@ -649,7 +655,7 @@ public final class XSeriesTests {
         log("Skull value of Notch: " + Profileable.username("Notch").getProfileValue());
         log("Skull value of Base64: " + Profileable.detect("f9f28fe3a81d67e67472b7b91caad063722477dfc37f0d729a19be49c2ec2990").getProfileValue());
 
-        if (Constants.TEST_MOJANG_API_BULK) {
+        if (TestConstants.TEST_MOJANG_API_BULK) {
             profilePreparation(); // Takes ~5 seconds (If we ignore the previous requests in this method)
             profilePreparation(); // Takes less than a second
         }
@@ -670,6 +676,7 @@ public final class XSeriesTests {
                 () -> "Textures of two different skulls match: " + first + " vs " + second);
     }
 
+    @SuppressWarnings("SpellCheckingInspection")
     private static void profilePreparation() {
         log("Profileable preparation test");
         Profileable.prepare(Arrays.asList(

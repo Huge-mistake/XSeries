@@ -44,7 +44,7 @@
     </modules>
 
     <properties>
-        <revision>13.6.0</revision>
+        <revision>13.7.0</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.deploy.skip>true</maven.deploy.skip> <!-- Override this in core module -->
@@ -54,9 +54,9 @@
         <!-- mvn install:install-file "-Dfile=server.jar" -DgroupId=org.spigotmc -DartifactId=spigot -Dversion=1.21.4-R0.1-EXPR -Dpackaging=jar -DgeneratePom=true -->
 
         <!-- Note: timestamped snapshots are used because a recent Maven Central policy update made it so that it's impossible to -->
-        <!-- publish your artifact if it has SNAPSHOT depednencies without any prior notice. -->
+        <!-- publish your artifact if it has SNAPSHOT dependencies, without any prior notice. -->
         <!-- Error: Dependencies to SNAPSHOT versions not allowed for dependency: org.spigotmc:spigot -->
-        <spigotVersion>26.1-R0.1-20260325.170250-2</spigotVersion>
+        <spigotVersion>26.1.2-R0.1-20260507.045840-11</spigotVersion>
         <jopt>5.0.4</jopt>
         <testVer/>
         <testJavaPath/>
@@ -93,6 +93,7 @@
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
         <version>9</version>
+        <relativePath/>
     </parent>
 
     <distributionManagement>
@@ -113,7 +114,7 @@
             <url>https://repo.codemc.org/repository/nms/</url>
         </repository>
         <repository>
-            <!-- Sometimes codemc's snapshots don't have the mojang packages. -->
+            <!-- Sometimes CodeMC's snapshots don't have the mojang packages. -->
             <!-- https://libraries.minecraft.net/com/mojang/authlib/VERSION/authlib-VERSION.jar -->
             <id>minecraft-libraries</id>
             <name>Minecraft Libraries</name>
@@ -151,7 +152,7 @@
                     <!-- We use this to collect submodules -->
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <version>3.6.0</version>
+                    <version>3.6.2</version>
                     <executions>
                         <execution>
                             <id>aggregate-packages</id>
@@ -188,7 +189,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.3.1</version>
+                    <version>3.4.0</version>
                     <executions>
                         <execution>
                             <id>attach-sources</id>
@@ -226,12 +227,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.11.2</version>
+                    <version>3.12.0</version>
 
                     <executions>
                         <execution>
                             <id>aggregate-javadocs</id>
-                            <!-- For some reason, using the "install" phase doesn't copy the javadocs jar into the .m2 folder. -->
+                            <!-- For some reason, using the "install" phase doesn't copy the Javadocs jar into the .m2 folder. -->
                             <phase>package</phase>
                             <goals>
                                 <goal>aggregate-jar</goal>
@@ -246,14 +247,14 @@
                         <attach>true</attach>
                         <excludePackageNames>com.cryptomorin.xseries.unused:com.cryptomorin.xseries.particles
                         </excludePackageNames>
-                        <!-- Apparently this is needed because it's a bug with maven JavaDoc plugin not being able to find the exe by itself. -->
+                        <!-- Apparently this is needed because it's a bug with maven Javadoc plugin not being able to find the exe by itself. -->
                         <!-- <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>-->
                     </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>
-                    <version>3.2.7</version>
+                    <version>3.2.8</version>
                     <executions>
                         <execution>
                             <id>sign-artifacts</id>
@@ -267,10 +268,16 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.14.0</version>
+                    <version>3.15.0</version>
                     <configuration>
                         <encoding>UTF-8</encoding>
                         <proc>none</proc>
+                        <!-- Note: You should configure your Maven to use at least JDK 25 -->
+                        <!--
+                            Don't use this because we call methods compiled by higher Java versions when supported.
+                            For example, we use record classes.
+                        -->
+                        <!-- <release>8</release> -->
                         <source>8</source>
                         <target>8</target>
 
@@ -278,8 +285,9 @@
                             <!-- Fails to build the JAR if one of the excluded classes are being used inside an included class. -->
                             <arg>-sourcepath</arg>
                             <arg>doesnotexist</arg>
-                            <arg>-Xlint:-options
-                            </arg> <!-- We compile using Java 8 which will be removed in later JDKs. This disables the warning. -->
+
+                            <!-- We compile using Java 8 which will be removed in later JDKs. This disables the warning. -->
+                            <arg>-Xlint:-options</arg>
                         </compilerArgs>
                         <excludes>
                             <exclude>com/cryptomorin/xseries/unused/</exclude>
@@ -316,7 +324,8 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.2</version>
+                    <version>3.5.5</version>
+
                     <configuration>
                         <!-- Minecraft starts its own thread so we can't really do anything about it. -->
                         <forkedProcessExitTimeoutInSeconds>0</forkedProcessExitTimeoutInSeconds>
@@ -339,6 +348,12 @@
                         <jdkToolchain>
                             <version>[${testJava}]</version>
                         </jdkToolchain>
+
+                        <properties>
+                            <configurationParameters>
+                                junit.jupiter.execution.parallel.enabled = false
+                            </configurationParameters>
+                        </properties>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -346,7 +361,7 @@
                     <!-- Doesn't work... Failed to execute goal org.codehaus.mojo:exec-maven-plugin:3.5.0:exec (default-cli) on project XSeries: Command execution failed.: Cannot run program "mvn" (in directory): CreateProcess error=2, The system cannot find the file specified(default-cli) on project XSeries: Command execution failed.: Cannot run program "mvn" (in directory): CreateProcess error=2, The system cannot find the file specified -->
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
-                    <version>3.5.0</version>
+                    <version>3.6.3</version>
                     <configuration>
                         <!-- <executable>IntelliJ\plugins\maven\lib\maven3\bin\mvn.cmd</executable>-->
                         <executable>mvn</executable>
@@ -399,7 +414,7 @@
                             </configuration>
                         </execution>
                         <execution>
-                            <!-- This won't properly set the propery for some reason: -->
+                            <!-- This won't properly set the property for some reason: -->
                             <!-- mvn exec:exec@everything -DtestVer=8 -->
                             <id>everything</id>
                             <phase>none</phase>
@@ -419,12 +434,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.4.2</version>
+                    <version>3.5.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>flatten-maven-plugin</artifactId>
-                    <version>1.7.0</version>
+                    <version>1.7.3</version>
                     <configuration>
                         <keepCommentsInPom>false</keepCommentsInPom>
                         <flattenMode>oss</flattenMode>
@@ -453,7 +468,7 @@
                     <!-- https://central.sonatype.org/publish/publish-portal-maven -->
                     <groupId>org.sonatype.central</groupId>
                     <artifactId>central-publishing-maven-plugin</artifactId>
-                    <version>0.8.0</version>
+                    <version>0.10.0</version>
                     <extensions>true</extensions>
                     <configuration>
                         <publishingServerId>central</publishingServerId>
@@ -574,7 +589,7 @@
             <id>26</id>
             <properties>
                 <nms>26_R0</nms>
-                <spigotVersion>26.1-R0.1-SNAPSHOT</spigotVersion>
+                <spigotVersion>26.1.2-R0.1-SNAPSHOT</spigotVersion>
                 <testJava>25</testJava>
             </properties>
         </profile>
@@ -619,7 +634,7 @@
             </properties>
         </profile>
         <profile>
-            <!-- Doens't seem to work. I can't find a way to compile with one dependency and test with another -->
+            <!-- Doesn't seem to work. I can't find a way to compile with one dependency and test with another -->
             <id>16</id>
             <properties>
                 <nms>16_R3</nms>

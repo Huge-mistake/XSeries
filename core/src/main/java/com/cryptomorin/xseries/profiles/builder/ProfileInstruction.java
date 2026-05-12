@@ -74,7 +74,7 @@ public final class ProfileInstruction<T> implements DelegateProfileable {
 
     private boolean lenient = false;
 
-    protected ProfileInstruction(ProfileContainer<T> profileContainer) {
+    ProfileInstruction(ProfileContainer<T> profileContainer) {
         this.profileContainer = profileContainer;
     }
 

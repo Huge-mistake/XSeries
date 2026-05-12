@@ -284,6 +284,7 @@ public final class XItemStack {
         /**
          * Copies all properties of this handler without the item.
          */
+        @SuppressWarnings("unused")
         public abstract SerialObject copySettings();
 
         public SerialObject withTranslator(Function<String, String> translator) {
@@ -1069,7 +1070,7 @@ public final class XItemStack {
         }
 
         private void attributes() {
-            // Atrributes - https://minecraft.wiki/w/Attribute
+            // Attributes - https://minecraft.wiki/w/Attribute
             if (!supports(1, 13)) return;
 
             ConfigurationSection attributes = config.getConfigurationSection("attributes");
@@ -1263,9 +1264,9 @@ public final class XItemStack {
         private void handleEnchantmentStorageMeta(EnchantmentStorageMeta meta) {
             ConfigurationSection enchantment = config.getConfigurationSection("stored-enchants");
             if (enchantment != null) {
-                for (String ench : enchantment.getKeys(false)) {
-                    Optional<XEnchantment> enchant = XEnchantment.of(ench);
-                    enchant.ifPresent(xEnchantment -> meta.addStoredEnchant(xEnchantment.get(), enchantment.getInt(ench), true));
+                for (String enchantName : enchantment.getKeys(false)) {
+                    Optional<XEnchantment> enchant = XEnchantment.of(enchantName);
+                    enchant.ifPresent(xEnchantment -> meta.addStoredEnchant(xEnchantment.get(), enchantment.getInt(enchantName), true));
                 }
             }
         }
@@ -1273,9 +1274,9 @@ public final class XItemStack {
         private void enchants() {
             ConfigurationSection enchants = config.getConfigurationSection("enchants");
             if (enchants != null) {
-                for (String ench : enchants.getKeys(false)) {
-                    Optional<XEnchantment> enchant = XEnchantment.of(ench);
-                    enchant.ifPresent(xEnchantment -> meta.addEnchant(xEnchantment.get(), enchants.getInt(ench), true));
+                for (String enchantName : enchants.getKeys(false)) {
+                    Optional<XEnchantment> enchant = XEnchantment.of(enchantName);
+                    enchant.ifPresent(xEnchantment -> meta.addEnchant(xEnchantment.get(), enchants.getInt(enchantName), true));
                 }
             } else if (config.getBoolean("glow")) {
                 meta.addEnchant(XEnchantment.UNBREAKING.get(), 1, false);
@@ -1630,8 +1631,10 @@ public final class XItemStack {
                             upgraded = Boolean.parseBoolean(components[2]);
                         }
 
-                        // noinspection removal,deprecation
-                        potion.setBasePotionData(new org.bukkit.potion.PotionData(effect, extended, upgraded));
+                        @SuppressWarnings("removal")
+                        org.bukkit.potion.PotionData data = new org.bukkit.potion.PotionData(effect, extended, upgraded);
+                        //noinspection deprecation
+                        potion.setBasePotionData(data);
                     }
                 }
 
@@ -1745,12 +1748,14 @@ public final class XItemStack {
                 if (skull != null) material = XMaterial.PLAYER_HEAD;
             }
 
-            if (material == null) {
+            if (material == null && item == null) {
                 material = solutionOrThrow(new UnsetMaterialCondition());
             }
 
-            if (item == null) item = material.parseItem();
-            else material.setType(item);
+            if (material != null) { // The item already has a material.
+                if (item == null) item = material.parseItem();
+                else material.setType(item);
+            }
         }
 
         private XMaterial solutionOrThrow(MaterialCondition condition) {
@@ -2024,7 +2029,6 @@ public final class XItemStack {
         return leftOvers;
     }
 
-    @NotNull
     @Contract(pure = true)
     @Range(from = -1, to = Integer.MAX_VALUE)
     public static int firstPartial(@NotNull Inventory inventory, @Nullable ItemStack item, int beginIndex) {
@@ -2044,7 +2048,6 @@ public final class XItemStack {
      * @throws IndexOutOfBoundsException if the beginning index is less than 0 or greater than the inventory storage size.
      * @since 4.0.0
      */
-    @NotNull
     @Contract(pure = true)
     @Range(from = -1, to = Integer.MAX_VALUE)
     public static int firstPartial(@NotNull Inventory inventory, @Nullable ItemStack item, int beginIndex, @Nullable Predicate<Integer> modifiableSlots) {
@@ -2268,7 +2271,7 @@ public final class XItemStack {
 
     public static final class UnsetMaterialCondition extends MaterialCondition {
         public UnsetMaterialCondition() {
-            super("No material is not set or could be derived");
+            super("No material is set or could be derived");
         }
     }
 }

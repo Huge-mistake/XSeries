@@ -32,9 +32,11 @@ import com.mojang.authlib.GameProfile;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -70,7 +72,7 @@ import org.jetbrains.annotations.NotNull;
  * same UUID for all GameProfiles caused all skulls (that use base64) to look the same.
  * The client is responsible for caching skull textures. If the download were to fail (either because of
  * connection issues or invalid values) the client will cache that skull UUID and the skull
- * will remain as a steve head until the client is completely restarted.
+ * will remain as a Steve head until the client is completely restarted.
  * I don't know if this cache system works across other servers or is just specific to one server.
  *
  * @author Crypto Morin, Erick Alexander
@@ -139,6 +141,19 @@ public final class XSkull {
         return new ProfileInstruction<>(new ProfileContainer.BlockStateProfileContainer((Skull) state));
     }
 
+    /**
+     * Creates a {@link ProfileInstruction} for a {@link MojangGameProfile}.
+     *
+     * @param player The {@link GameProfile} to change its properties.
+     * @return An {@link ProfileInstruction} that sets the profile for the given {@link MojangGameProfile}.
+     */
+    @SuppressWarnings("unused")
+    @NotNull
+    @Contract(value = "_ -> new", pure = true)
+    @ApiStatus.Experimental
+    static ProfileInstruction<Player> of(@NotNull Player player) {
+        return new ProfileInstruction<>(new ProfileContainer.PlayerContainer(player));
+    }
 
     /**
      * We'll just return a prohibition sign hardcoded skull.<br>
@@ -161,7 +176,7 @@ public final class XSkull {
      */
     @NotNull
     @Contract(value = "-> new", pure = true)
-    protected static Profileable getDefaultProfile() {
+    static Profileable getDefaultProfile() {
         return Profileable.of(DEFAULT_PROFILE.copy(), false);
     }
 }

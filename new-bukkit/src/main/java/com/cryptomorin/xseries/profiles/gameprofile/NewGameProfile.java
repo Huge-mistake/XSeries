@@ -33,7 +33,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public final class NewGameProfile extends MojangGameProfile {
-    protected NewGameProfile(GameProfile object) {
+    NewGameProfile(GameProfile object) {
         super(object);
     }
 

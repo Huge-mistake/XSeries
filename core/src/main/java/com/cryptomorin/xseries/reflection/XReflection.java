@@ -79,7 +79,7 @@ import java.util.stream.Collectors;
  * In general, XReflection's API is divided into five stages:
  * <ul>
  *     <li>
- *         <strong>Stage I (Raw Level):</strong> This is the a low-level API which offers the most customizable and performance.
+ *         <strong>Stage I (Raw Level):</strong> This is a low-level API which offers the most customizable and performance.
  *         However, although it's much better in terms of readability compared to Java's raw reflection API,
  *         it's the least unreadable format of XReflection API. This API is accessed from
  *         {@link XReflection#of(Class)}, {@link XReflection#classHandle()} and {@link XReflection#ofMinecraft()}.
@@ -88,7 +88,7 @@ import java.util.stream.Collectors;
  *         <strong>Stage II (String API):</strong> This API is a lot more readable and offers the same performance
  *         compared to Stage I API, however it has an extra overhead for caching {@link ReflectiveHandle} for the
  *         first time. This API is typically accessed from {@link ReflectiveNamespace}'s string methods or the
- *         signature methods of its related APIs (e.g. {@link MethodMemberHandle#signature(String)}.
+ *         signature methods of its related APIs (e.g. {@link MethodMemberHandle#signature(String)}).
  *     </li>
  *     <li>
  *         <strong>Stage III (Proxification):</strong> This API is much more readable for invocation compared
@@ -161,7 +161,7 @@ public final class XReflection {
      * The current version of XSeries. Mostly used for the {@link com.cryptomorin.xseries.profiles.builder.XSkull} API.
      */
     @ApiStatus.Internal
-    public static final String XSERIES_VERSION = "13.6.0";
+    public static final String XSERIES_VERSION = "13.7.0";
 
     /**
      * System property ({@link System#getProperty(String)}) used to disable Minecraft capabilities
@@ -215,7 +215,7 @@ public final class XReflection {
                 // As a protection for forge+bukkit implementation that tend to mix versions.
                 // The real CraftPlayer should exist in the package.
                 // Note: Doesn't seem to function properly. Will need to separate the version
-                // handler for NMS and CraftBukkit for software like catmc.
+                // handler for NMS and CraftBukkit for software like CatMC.
                 try {
                     Class.forName("org.bukkit.craftbukkit." + found + ".entity.CraftPlayer");
                     break;
@@ -761,7 +761,7 @@ public final class XReflection {
         // The following commented statement is not needed because the exception was created somewhere else and the stacktrace reflects that.
         // exception.setStackTrace(Arrays.stream(exception.getStackTrace()).skip(1).toArray(StackTraceElement[]::new));
         throwException(exception);
-        return null; // Trick the compiler to stfu for "throw" terminating statements.
+        return null; // Trick the compiler to STFU for "throw" terminating statements.
     }
 
     /**

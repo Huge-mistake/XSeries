@@ -525,6 +525,8 @@ public enum XPotion implements XBase<XPotion, PotionEffectType> {
     /**
      * Gets the PotionType from this PotionEffectType.
      * Usually for potion items.
+     * <p>
+     * Certain effects have no potion type.
      *
      * @return a potion type for potions.
      * @see #getPotionEffectType()

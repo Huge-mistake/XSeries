@@ -70,11 +70,10 @@ public interface ReflectiveProxyObject {
      * @since 14.0.0
      */
     @Ignore
-    @NotNull
     @ApiStatus.NonExtendable
     @Contract(pure = true)
     default boolean isInstance(@Nullable Object object) {
-        return getTargetClass().isInstance(object.getClass());
+        return object != null && getTargetClass().isInstance(object.getClass());
     }
 
     /**

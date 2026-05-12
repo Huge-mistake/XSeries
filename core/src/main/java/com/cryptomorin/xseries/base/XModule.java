@@ -41,8 +41,6 @@ public abstract class XModule<XForm extends XModule<XForm, BukkitForm>, BukkitFo
     protected XModule(BukkitForm bukkitForm, String[] names) {
         this.bukkitForm = bukkitForm;
         this.names = names;
-        // this.names = new String[names.length + 1];
-        // System.arraycopy(names, 0, names, 1, names.length);
     }
 
     /**

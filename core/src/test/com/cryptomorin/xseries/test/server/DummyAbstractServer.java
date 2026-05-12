@@ -25,7 +25,7 @@ package com.cryptomorin.xseries.test.server;
 import com.cryptomorin.xseries.base.XRegistry;
 import com.cryptomorin.xseries.reflection.XReflection;
 import com.cryptomorin.xseries.reflection.minecraft.MinecraftPackage;
-import com.cryptomorin.xseries.test.Constants;
+import com.cryptomorin.xseries.test.TestConstants;
 import com.cryptomorin.xseries.test.XSeriesTests;
 import com.cryptomorin.xseries.test.benchmark.BenchmarkMain;
 import joptsimple.OptionParser;
@@ -241,7 +241,7 @@ public abstract class DummyAbstractServer {
             AtomicReference<Throwable> error = new AtomicReference<>();
             Bukkit.getScheduler().runTask(plugin, () -> {
                 log("Server fully loaded. Running Tests...");
-                synchronized (Constants.LOCK) {
+                synchronized (TestConstants.LOCK) {
                     log("Synchronize Access Granted");
                     try {
                         try {
@@ -253,17 +253,17 @@ public abstract class DummyAbstractServer {
                             throw new IllegalStateException("Failed to disable XRegistry's auto-add system", e);
                         }
 
-                        if (Constants.TEST) XSeriesTests.test();
+                        if (TestConstants.TEST) XSeriesTests.test();
                     } catch (Throwable ex) {
                         error.set(ex);
                     }
-                    Constants.LOCK.notifyAll();
+                    TestConstants.LOCK.notifyAll();
                     log("Synchronize Done");
                 }
             });
             log("Locking the test thread...");
-            synchronized (Constants.LOCK) {
-                Constants.LOCK.wait();
+            synchronized (TestConstants.LOCK) {
+                TestConstants.LOCK.wait();
             }
 
             // Note: If this is not properly reached, it'll cause the surefire process to hang in the background
@@ -283,12 +283,12 @@ public abstract class DummyAbstractServer {
         }
 
         // JMH Tests
-        if (Constants.BENCHMARK) benchmark();
+        if (TestConstants.BENCHMARK) benchmark();
 
-        log("All operations are done. " + (Constants.SAFE_SHUTDOWN ?
+        log("All operations are done. " + (TestConstants.SAFE_SHUTDOWN ?
                 "Shutting down the server..." :
                 "Forcefully shutting down the server..."));
-        if (Constants.SAFE_SHUTDOWN) {
+        if (TestConstants.SAFE_SHUTDOWN) {
             Bukkit.shutdown();
             log("Server shutdown signal sent.");
         }
@@ -324,25 +324,25 @@ public abstract class DummyAbstractServer {
             // Don't use Bukkit's scheduler... We already have enough external factors affecting our benchmarks...
             BenchmarkMain benchmarkThread = new BenchmarkMain();
             benchmarkThread.start();
-            synchronized (Constants.LOCK) {
+            synchronized (TestConstants.LOCK) {
                 log("[JMH] Benchmarks are complete");
             }
         } catch (Throwable e) {
             throw new RuntimeException(e);
         } finally {
             log("[JMH] JMH Benchmarking are done!");
-            synchronized (Constants.LOCK) {
+            synchronized (TestConstants.LOCK) {
                 log("[JMH] Synchronize Access Granted");
-                Constants.LOCK.notify();
+                TestConstants.LOCK.notify();
                 log("[JMH] Synchronize Done");
             }
         }
 
 
         log("[JMH] Preparing lock for benchmarking...");
-        synchronized (Constants.LOCK) {
+        synchronized (TestConstants.LOCK) {
             try {
-                Constants.LOCK.wait();
+                TestConstants.LOCK.wait();
             } catch (InterruptedException e) {
                 throw new IllegalArgumentException("Failed to acquire lock for JMH benchmarks", e);
             }
